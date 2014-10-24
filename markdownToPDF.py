@@ -46,7 +46,7 @@ def gather(current, current_level, max_depth):
     # Not a relevant tag. Carry on with the next element.
     return gather(current.next_sibling, current_level, max_depth)
 
-def convert(markdown_input, outpath, header_depth, date, type):
+def convert(markdown_input, header_depth, date, type):
   # Generate HTML from markdown.
   html = markdown.markdown(markdown_input, extensions = ['tables'])
 

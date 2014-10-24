@@ -16,7 +16,6 @@ USERNAME = 'admin'
 PASSWORD = 'default'
 
 # file upload configuration
-UPLOAD_FOLDER = 'uploads'
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['md'])
 
@@ -50,15 +49,14 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def convert(markdown):
-  outfile = os.path.join(app.config['UPLOAD_FOLDER'], 'output.pdf')
   header_depth = 3
   today = date.today().strftime('%b %d, %Y')
   doc_type = 'Training documentation'
-  return markdownToPDF.convert(markdown, outfile, header_depth, today, doc_type)
+  return markdownToPDF.convert(markdown, header_depth, today, doc_type)
 
-def render_pdf(byte_string, download_filename=None):
+def render_pdf(pdf, download_filename=None):
   """Render a PDF to a response with the correct ``Content-Type`` header."""
-  response = app.response_class(byte_string, mimetype='application/pdf')
+  response = app.response_class(pdf, mimetype='application/pdf')
   if download_filename:
     response.headers.add('Content-Disposition', 'attachment',
                          filename=download_filename)
@@ -70,9 +68,9 @@ def upload_file():
   if request.method == 'POST':
     file = request.files['infile']
     if file and allowed_file(file.filename):
-      filename = secure_filename(file.filename) #TODO: Use this to name the PDF
-      output = convert(file.stream.read())
-      return render_pdf(output, 'Filenamezilla')
+      download_filename = os.path.splitext(secure_filename(file.filename))[0]
+      pdf = convert(file.stream.read())
+      return render_pdf(pdf, download_filename)
   return render_template('markdown_form.html')
 
 
