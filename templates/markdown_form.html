@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<form action="/upload" method=post class=add-entry>
+  <dl>
+    <dt>Markdown file:
+    <dd><input type=file name=infile>
+    <dt>Date (leave blank for today):
+    <dd><input type=text size=30 name=date></textarea>
+    <dd><input type=submit value="Convert to PDF">
+  </dl>
+</form>
+{% endblock %}
