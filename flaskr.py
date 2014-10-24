@@ -24,35 +24,29 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 
 # Handle database connection
-def connect_db():
-  return sqlite3.connect(app.config['DATABASE'])
+# def connect_db():
+#   return sqlite3.connect(app.config['DATABASE'])
 
-def init_db():
-  with closing(connect_db()) as db:
-    with app.open_resource('schema.sql', mode='r') as f:
-      db.cursor().executescript(f.read())
-    db.commit()
+# def init_db():
+#   with closing(connect_db()) as db:
+#     with app.open_resource('schema.sql', mode='r') as f:
+#       db.cursor().executescript(f.read())
+#     db.commit()
 
-@app.before_request
-def before_request():
-  g.db = connect_db()
+# @app.before_request
+# def before_request():
+#   g.db = connect_db()
 
-@app.teardown_request
-def teardown_request(exception):
-  db = getattr(g, 'db', None)
-  if db is not None:
-    db.close()
+# @app.teardown_request
+# def teardown_request(exception):
+#   db = getattr(g, 'db', None)
+#   if db is not None:
+#     db.close()
 
 # Define helper functions
 def allowed_file(filename):
   return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
-def convert(markdown):
-  header_depth = 3
-  today = date.today().strftime('%b %d, %Y')
-  doc_type = 'Training documentation'
-  return markdownToPDF.convert(markdown, header_depth, today, doc_type)
 
 def render_pdf(pdf, download_filename=None):
   """Render a PDF to a response with the correct ``Content-Type`` header."""
@@ -66,10 +60,16 @@ def render_pdf(pdf, download_filename=None):
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
   if request.method == 'POST':
+    print request.form['date']
     file = request.files['infile']
     if file and allowed_file(file.filename):
+
+      today = date.today().strftime('%b %d, %Y')
+      doc_date = request.form['date'] if request.form['date'] else today
+      doc_type = request.form['doc_type'] if request.form['doc_type'] else ''
+      pdf = markdownToPDF.convert(file.stream.read(), 3, doc_date, doc_type)
+
       download_filename = os.path.splitext(secure_filename(file.filename))[0]
-      pdf = convert(file.stream.read())
       return render_pdf(pdf, download_filename)
   return render_template('markdown_form.html')
 

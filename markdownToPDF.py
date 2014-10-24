@@ -46,7 +46,7 @@ def gather(current, current_level, max_depth):
     # Not a relevant tag. Carry on with the next element.
     return gather(current.next_sibling, current_level, max_depth)
 
-def convert(markdown_input, header_depth, date, type):
+def convert(markdown_input, header_depth, date, document_type):
   # Generate HTML from markdown.
   html = markdown.markdown(markdown_input, extensions = ['tables'])
 
@@ -58,7 +58,7 @@ def convert(markdown_input, header_depth, date, type):
   # Load CSS.
   css_directory = os.path.dirname(CSS_PATH)
   css_file = open(CSS_PATH)
-  css = css_file.read().replace('$date', date).replace('$type', type)
+  css = css_file.read().replace('$date', date).replace('$type', document_type)
   styles = weasyprint.CSS(string=css, base_url=css_directory)
 
   # Convert HTML and CSS to PDF using weasyprint.
