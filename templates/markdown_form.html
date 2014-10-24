@@ -1,12 +1,29 @@
 {% extends "layout.html" %}
 {% block body %}
 <form action="/" method=post enctype=multipart/form-data class=add-entry>
-  <dl>
-    <dt>Markdown file:
-    <dd><input type=file name=infile>
-    <dt>Date (leave blank for today):
-    <dd><input type=text size=30 name=date></textarea>
-    <dd><input type=submit value="Convert to PDF">
-  </dl>
+  <p>
+    <label for="infile">
+      <span>Markdown file: </span>
+      <input type=file name='infile' id='infile'>
+    </label>
+  </p>
+
+  <p>
+    <label for="date">
+      <span>Date (leave blank for today): </span>
+      <input type=text size=30 name='date' id='date'>
+    </label>
+  </p>
+
+  <p>
+    <label for="doc_type">
+      <span>Document type: </span>
+      <input type=text size=30 name='doc_type' id='doc_type'>
+    </label>
+  </p>
+
+  <p>
+    <input type=submit value="Convert to PDF">
+  </p>
 </form>
 {% endblock %}
