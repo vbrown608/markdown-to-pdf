@@ -47,9 +47,10 @@ def gather(current, current_level, max_depth):
     return gather(current.next_sibling, current_level, max_depth)
 
 def convert(markdown_input, outpath, header_depth, date, type):
+  # Generate HTML from markdown.
   html = markdown.markdown(markdown_input, extensions = ['tables'])
 
-  # Insert table of contents
+  # Insert table of contents.
   soup = BeautifulSoup(html)
   toc = "<ol>" + gather(soup.find("h2"), 2, int(header_depth)) + "</ol>"
   html = html.replace("<TOC>", toc)
@@ -61,5 +62,4 @@ def convert(markdown_input, outpath, header_depth, date, type):
   styles = weasyprint.CSS(string=css, base_url=css_directory)
 
   # Convert HTML and CSS to PDF using weasyprint.
-  weasyprint.HTML(string=html).write_pdf(outpath,
-    stylesheets = [styles])
+  return weasyprint.HTML(string=html).write_pdf(stylesheets = [styles])

@@ -54,7 +54,15 @@ def convert(markdown):
   header_depth = 3
   today = date.today().strftime('%b %d, %Y')
   doc_type = 'Training documentation'
-  markdownToPDF.convert(markdown, outfile, header_depth, today, doc_type)
+  return markdownToPDF.convert(markdown, outfile, header_depth, today, doc_type)
+
+def render_pdf(byte_string, download_filename=None):
+  """Render a PDF to a response with the correct ``Content-Type`` header."""
+  response = app.response_class(byte_string, mimetype='application/pdf')
+  if download_filename:
+    response.headers.add('Content-Disposition', 'attachment',
+                         filename=download_filename)
+  return response
 
 # Handle requests
 @app.route('/', methods=['GET', 'POST'])
@@ -62,17 +70,10 @@ def upload_file():
   if request.method == 'POST':
     file = request.files['infile']
     if file and allowed_file(file.filename):
-      filename = secure_filename(file.filename)
-      markdown = file.stream.read()
-      convert(markdown)
-      return redirect(url_for('uploaded_file',
-                      filename='output.pdf'))
+      filename = secure_filename(file.filename) #TODO: Use this to name the PDF
+      output = convert(file.stream.read())
+      return render_pdf(output, 'Filenamezilla')
   return render_template('markdown_form.html')
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-  return send_from_directory(app.config['UPLOAD_FOLDER'],
-                            filename)
 
 
 # DB Access examples
