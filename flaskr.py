@@ -5,6 +5,8 @@ from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, send_from_directory
 from contextlib import closing
 from werkzeug import secure_filename
+import markdownToPDF
+from datetime import date
 
 # general configuration
 DATABASE = '/tmp/flaskr.db'
@@ -21,12 +23,6 @@ ALLOWED_EXTENSIONS = set(['md'])
 # create flask app
 app = Flask(__name__)
 app.config.from_object(__name__)
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Possibly not needed - need to check
-
-# Define helper functions
-def allowed_file(filename):
-  return '.' in filename and \
-        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 # Handle database connection
 def connect_db():
@@ -48,6 +44,19 @@ def teardown_request(exception):
   if db is not None:
     db.close()
 
+# Define helper functions
+def allowed_file(filename):
+  return '.' in filename and \
+        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+def convert(filename):
+  infile = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+  outfile = os.path.join(app.config['UPLOAD_FOLDER'], 'output.pdf')
+  header_depth = 3
+  today = date.today().strftime('%b %d, %Y')
+  doc_type = 'Training documentation'
+  markdownToPDF.convert(infile, outfile, header_depth, today, doc_type)
+
 # Handle requests
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -56,8 +65,9 @@ def upload_file():
     if file and allowed_file(file.filename):
       filename = secure_filename(file.filename)
       file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+      convert(filename)
       return redirect(url_for('uploaded_file',
-                      filename=filename))
+                      filename='output.pdf'))
   return render_template('markdown_form.html')
 
 @app.route('/uploads/<filename>')
