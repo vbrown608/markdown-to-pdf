@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<form action="/upload" method=post class=add-entry>
+<form action="/" method=post enctype=multipart/form-data class=add-entry>
   <dl>
     <dt>Markdown file:
     <dd><input type=file name=infile>
