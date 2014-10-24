@@ -6,20 +6,22 @@ from flask import Flask, request, session, g, redirect, url_for, \
 from contextlib import closing
 from werkzeug import secure_filename
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = set(['md'])
-
-# configuration
+# general configuration
 DATABASE = '/tmp/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
 
+# file upload configuration
+UPLOAD_FOLDER = 'uploads'
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+ALLOWED_EXTENSIONS = set(['md'])
+
 # create flask app
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Possibly not needed - need to check
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Possibly not needed - need to check
 
 # Define helper functions
 def allowed_file(filename):
@@ -45,7 +47,6 @@ def teardown_request(exception):
   db = getattr(g, 'db', None)
   if db is not None:
     db.close()
-
 
 # Handle requests
 @app.route('/', methods=['GET', 'POST'])
