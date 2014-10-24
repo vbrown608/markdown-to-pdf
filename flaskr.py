@@ -49,13 +49,12 @@ def allowed_file(filename):
   return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-def convert(filename):
-  infile = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+def convert(markdown):
   outfile = os.path.join(app.config['UPLOAD_FOLDER'], 'output.pdf')
   header_depth = 3
   today = date.today().strftime('%b %d, %Y')
   doc_type = 'Training documentation'
-  markdownToPDF.convert(infile, outfile, header_depth, today, doc_type)
+  markdownToPDF.convert(markdown, outfile, header_depth, today, doc_type)
 
 # Handle requests
 @app.route('/', methods=['GET', 'POST'])
@@ -64,8 +63,8 @@ def upload_file():
     file = request.files['infile']
     if file and allowed_file(file.filename):
       filename = secure_filename(file.filename)
-      file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-      convert(filename)
+      markdown = file.stream.read()
+      convert(markdown)
       return redirect(url_for('uploaded_file',
                       filename='output.pdf'))
   return render_template('markdown_form.html')

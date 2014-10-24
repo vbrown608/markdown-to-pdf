@@ -6,7 +6,7 @@ import os
 from bs4 import BeautifulSoup
 from datetime import date
 
-CSS_PATH = '/Users/vivian/Library/Application Support/Mou/CSS/Quilted.css'
+CSS_PATH = 'static/pdf_styles/Quilted.css'
 
 # Parse command line arguments.
 # parser = argparse.ArgumentParser(description='Take a markdown file and convert it to a Quilted-styled PDF.')
@@ -46,12 +46,8 @@ def gather(current, current_level, max_depth):
     # Not a relevant tag. Carry on with the next element.
     return gather(current.next_sibling, current_level, max_depth)
 
-def convert(inpath, outpath, header_depth, date, type):
-  # Read in markdown and convert it to HTML.
-  infile = codecs.open(inpath, mode='r', encoding='utf-8')
-  text = infile.read()
-  html = markdown.markdown(text, extensions = ['tables'])
-  infile.close()
+def convert(markdown_input, outpath, header_depth, date, type):
+  html = markdown.markdown(markdown_input, extensions = ['tables'])
 
   # Insert table of contents
   soup = BeautifulSoup(html)
@@ -59,14 +55,11 @@ def convert(inpath, outpath, header_depth, date, type):
   html = html.replace("<TOC>", toc)
 
   # Load CSS.
-  script_directory = os.path.dirname(os.path.abspath(__file__))
+  css_directory = os.path.dirname(CSS_PATH)
   css_file = open(CSS_PATH)
   css = css_file.read().replace('$date', date).replace('$type', type)
-  styles = weasyprint.CSS(string=css, base_url=script_directory)
+  styles = weasyprint.CSS(string=css, base_url=css_directory)
 
   # Convert HTML and CSS to PDF using weasyprint.
-  in_directory = os.path.dirname(inpath)
-  weasyprint.HTML(string=html, base_url=in_directory).write_pdf(outpath,
+  weasyprint.HTML(string=html).write_pdf(outpath,
     stylesheets = [styles])
-
-# convert(args.inpath, args.outpath, args.header_depth, args.date, args.type)
