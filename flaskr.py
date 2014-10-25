@@ -76,7 +76,8 @@ def upload_file():
       # Return rendered response.
       download_filename = os.path.splitext(secure_filename(file.filename))[0]
       return render_pdf(pdf, download_filename)
-  return render_template('markdown_form.html')
+  today = date.today().strftime('%Y-%m-%d')
+  return render_template('markdown_form.html', today=today)
 
 
 # DB Access examples
