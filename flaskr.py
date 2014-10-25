@@ -64,11 +64,16 @@ def upload_file():
     file = request.files['infile']
     if file and allowed_file(file.filename):
 
+      # Process form data.
+      markdown = file.stream.read().decode('utf-8')
       today = date.today().strftime('%b %d, %Y')
       doc_date = request.form['date'] if request.form['date'] else today
       doc_type = request.form['doc_type'] if request.form['doc_type'] else ''
-      pdf = markdownToPDF.convert(file.stream.read(), 3, doc_date, doc_type)
 
+      # Create PDF.
+      pdf = markdownToPDF.convert(markdown, 3, doc_date, doc_type)
+
+      # Return rendered response.
       download_filename = os.path.splitext(secure_filename(file.filename))[0]
       return render_pdf(pdf, download_filename)
   return render_template('markdown_form.html')
